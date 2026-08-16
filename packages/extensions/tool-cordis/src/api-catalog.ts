@@ -882,6 +882,31 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'memoryFlow',
+    summary: 'Durable task-aware personal-memory service and its model-facing tools.',
+    description: 'Durable task-aware personal-memory service and its model-facing tools.',
+    methods: [
+      {
+        signature: 'async remember(agent: Agent, input: RememberMemoryInput): Promise<MemoryEntry>',
+        description: 'Normalize and persist one memory under the Agent\'s current task route.',
+        parameters: [{ name: 'agent', description: 'Agent whose current task owns task-scoped memory.' }, { name: 'input', description: 'Requested memory fields.' }],
+        returns: 'the committed immutable entry.',
+      },
+      {
+        signature: 'forget(id: string): Promise<boolean>',
+        description: 'Delete one memory idempotently.',
+        parameters: [{ name: 'id', description: 'Opaque durable entry id.' }],
+        returns: 'whether a record existed and was deleted.',
+      },
+      {
+        signature: 'recall(taskId: string, messages: readonly Message[]): readonly MemoryEntry[]',
+        description: 'Retrieve task-eligible entries by configured tags and always-recall kinds.',
+        parameters: [{ name: 'taskId', description: 'Current deterministic task route.' }, { name: 'messages', description: 'Current model history used only for the latest direct user text.' }],
+        returns: 'ranked immutable entries fitting both count and byte budgets.',
+      },
+    ],
+  },
+  {
     key: 'messageFeedback',
     summary: 'Storage-domain sidecar service.',
     description: 'Storage-domain sidecar service. It inspects persisted Session history and never creates or resumes an Agent or Session.',
@@ -1733,6 +1758,31 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         description: 'Assemble global and scoped providers, detach tool parameters, apply canonical ordering, then run the assembly waterfall. Scoped sections and variables shadow globals. The returned waterfall value is authoritative except that an effective complete section is restored afterwards as the sole prompt section.',
         parameters: [{ name: 'context', description: 'the optional scope and plugin-defined assembly fields.' }],
         returns: 'the post-waterfall assembly with any complete prompt enforced.',
+      },
+    ],
+  },
+  {
+    key: 'taskRouter',
+    summary: 'Service that resolves configured task families and contributes one durable route snapshot to the first model request of each turn.',
+    description: 'Service that resolves configured task families and contributes one durable route snapshot to the first model request of each turn.',
+    methods: [
+      {
+        signature: 'resolve(messages: readonly Message[]): TaskSelection',
+        description: 'Resolve one message history. Most matched signals wins; task-table order breaks ties, and the configured fallback wins when every score is zero.',
+        parameters: [{ name: 'messages', description: 'Current derived messages plus any proposed pre-step messages.' }],
+        returns: 'immutable selected task and the matched configured signals.',
+      },
+      {
+        signature: 'current(agent: Agent): TaskSelection',
+        description: 'Resolve the current task directly from an Agent\'s durable derived history.',
+        parameters: [{ name: 'agent', description: 'Agent whose latest direct human message owns the route.' }],
+        returns: 'current deterministic selection.',
+      },
+      {
+        signature: 'definitions(): readonly TaskDefinition[]',
+        description: 'Return the immutable configured task table in deterministic tie-break order.',
+        parameters: [],
+        returns: 'every configured task definition.',
       },
     ],
   },
@@ -3362,6 +3412,18 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface ManualCompactAgentContext extends CompactionAgentContext {\n    runMaintenance<T>(task: (signal: AbortSignal) => Promise<T>): Promise<T>;\n}',
   },
   {
+    name: 'MemoryEntry',
+    declaration: 'export type MemoryEntry = z.infer<typeof memoryEntrySchema>;',
+  },
+  {
+    name: 'MemoryKind',
+    declaration: 'export type MemoryKind = typeof MEMORY_KINDS[number];',
+  },
+  {
+    name: 'MemoryScope',
+    declaration: 'export type MemoryScope = \'global\' | \'task\';',
+  },
+  {
     name: 'Message',
     declaration: 'export interface Message {\n    readonly id: MessageId;\n    readonly role: \'system\' | \'user\' | \'assistant\';\n    readonly content: ContentBlock[];\n    readonly source: MessageSource;\n}',
   },
@@ -3576,6 +3638,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'RedactedSecret',
     declaration: 'export interface RedactedSecret {\n    path: string[];\n    set: boolean;\n}',
+  },
+  {
+    name: 'RememberMemoryInput',
+    declaration: 'export interface RememberMemoryInput {\n    readonly scope: MemoryScope;\n    readonly kind: MemoryKind;\n    readonly content: string;\n    readonly tags: readonly string[];\n}',
   },
   {
     name: 'RequestContext',
@@ -4240,6 +4306,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'TableValueOf',
     declaration: 'export type TableValueOf<S extends DomainSpec, N extends keyof S[\'tables\']> = S[\'tables\'][N] extends DomainTableSpec<string, infer V> ? V : never;',
+  },
+  {
+    name: 'TaskDefinition',
+    declaration: 'export interface TaskDefinition {\n    readonly id: string;\n    readonly title: string;\n    readonly purpose: string;\n    readonly signals: readonly string[];\n}',
+  },
+  {
+    name: 'TaskSelection',
+    declaration: 'export interface TaskSelection {\n    readonly task: TaskDefinition;\n    readonly matchedSignals: readonly string[];\n    readonly fallback: boolean;\n}',
   },
   {
     name: 'TerminalBackend',

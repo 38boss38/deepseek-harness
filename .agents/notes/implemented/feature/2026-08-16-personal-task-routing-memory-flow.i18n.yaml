@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-08-16-personal-task-routing-memory-flow.md
+2026-08-16-personal-task-routing-memory-flow.md: aa03d89c7cdf3b808a6dae691363409a4c7a0527
+2026-08-16-personal-task-routing-memory-flow.zh.md: 1351349b51d3bcda595831c548306f4d4a598e42

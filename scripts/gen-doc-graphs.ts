@@ -97,6 +97,21 @@ const GROUP_ORDER = [
 
 const SERVICE_ROLES: ServiceRole[] = [
   {
+    key: 'taskRouter',
+    pkg: 'task-router',
+    title: 'Deterministic personal task routing',
+    mode: 'core',
+    consumers: ['memory-flow', 'task-playbook'],
+    note: 'Classifies the latest direct human message from an explicit configured taxonomy and records the selected task as durable model context.',
+  },
+  {
+    key: 'memoryFlow',
+    pkg: 'memory-flow',
+    title: 'Task-scoped personal memory',
+    mode: 'core',
+    note: 'Owns explicit capture and deletion tools, the personal-memory storage domain, task-fenced retrieval, and bounded durable recall context.',
+  },
+  {
     key: 'attachments',
     pkg: 'attachment',
     title: 'Durable binary attachment storage',

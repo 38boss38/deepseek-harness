@@ -1,0 +1,94 @@
+# Personal Harness overlay. Apply after @deepseek-ai/dsh-web-app so its
+# storage, JSON backend, and storage-domain rows already exist.
+
+- insert:
+    - id: task-router
+      name: '@deepseek-ai/dsh-task-router'
+      config:
+        fallbackTaskId: general
+        tasks:
+          - id: harness-engineering
+            title: Harness engineering
+            purpose: Build, debug, and evolve the personal DSH harness, plugins, routing, memory, evaluation, and automation.
+            signals: [harness, DSH, deepseek-harness, agent, plugin, 插件, 路由, 记忆流]
+          - id: game-design
+            title: Game design
+            purpose: Design player-facing mechanics, levels, progression, economy, balance, and playtestable game systems.
+            signals: [游戏, 玩法, 关卡, 数值, 策划, 玩家, game design, gameplay]
+          - id: research
+            title: Research and synthesis
+            purpose: Inspect sources, compare evidence, extract durable concepts, and produce decision-ready summaries.
+            signals: [调研, 分析, 总结, 资料, 论文, research, synthesis]
+          - id: general
+            title: General execution
+            purpose: Handle work that does not yet justify a specialized route while preserving the user's current intent.
+            signals: []
+
+    - id: task-playbook
+      name: '@deepseek-ai/dsh-task-playbook'
+      config:
+        maxInjectedBytes: 4096
+        playbooks:
+          - taskId: harness-engineering
+            objective: Evolve the personal Harness through explicit plugin contracts, observable behavior, and changes that remain easy to rebase onto upstream DSH.
+            workflow:
+              - Inspect the owning package contracts and composition before changing code.
+              - Put behavior in the narrowest plugin extension point and preserve the Agent Loop unless the request requires a core change.
+              - Verify model-visible, durable, configuration, and failure behavior at the layer that owns each decision.
+              - Update the package documentation and decision record together with the implementation.
+            completionChecks:
+              - The requested behavior works through the real composition path.
+              - Focused tests, type checks, and repository constraints covering the change pass.
+              - The final report names remaining limitations and leaves unrelated user changes untouched.
+            cautions:
+              - Do not turn personal policy into a generic core default.
+              - Do not claim success from model prose when an external effect can be inspected directly.
+          - taskId: game-design
+            objective: Produce a player-facing design that can be tested as a small playable hypothesis before content or production scope expands.
+            workflow:
+              - State the target player experience, design problem, and constraints.
+              - Express the mechanic as player actions, system responses, feedback, and meaningful decisions.
+              - Define the smallest playable slice and the observations that would support or reject the hypothesis.
+              - Separate validated rules from tunable numbers, content volume, and presentation polish.
+            completionChecks:
+              - The design names the core loop, player decisions, feedback, and failure or mastery states.
+              - A prototype or playtest plan can reveal whether the central hypothesis works.
+              - Open balance, content, and production assumptions are explicit.
+            cautions:
+              - Do not replace interaction design with theme, lore, or feature inventory.
+              - Do not present untested tuning values as established balance.
+          - taskId: research
+            objective: Turn inspected evidence into a traceable synthesis that supports a concrete decision without hiding uncertainty.
+            workflow:
+              - Define the decision question and the evidence needed to answer it.
+              - Prefer primary sources and separate source claims from inference.
+              - Compare agreements, conflicts, scope limits, and missing evidence.
+              - Produce a concise conclusion with citations, confidence, and actionable implications.
+            completionChecks:
+              - Material claims are traceable to inspected sources.
+              - Conflicting or uncertain evidence is visible rather than averaged away.
+              - The synthesis answers the decision question and identifies the next useful check.
+            cautions:
+              - Do not treat search snippets or uninspected references as evidence.
+              - Do not overstate causality, recency, or consensus.
+          - taskId: general
+            objective: Complete the user's stated outcome with the smallest sufficient workflow and evidence proportional to the risk.
+            workflow:
+              - Identify the requested outcome and any binding constraints.
+              - Execute the necessary work without expanding into unrelated changes.
+              - Verify the observable result and report material limitations.
+            completionChecks:
+              - The requested outcome is delivered or a concrete blocker is identified.
+              - Verification matches the risk and the type of result.
+            cautions:
+              - Do not invent a specialized process when the request is simple.
+
+    - id: memory-flow
+      name: '@deepseek-ai/dsh-memory-flow'
+      config:
+        maxEntryBytes: 2048
+        maxTagsPerEntry: 8
+        maxTagBytes: 96
+        maxInjectedEntries: 6
+        maxInjectedBytes: 8192
+        alwaysRecallKinds: [preference, principle]

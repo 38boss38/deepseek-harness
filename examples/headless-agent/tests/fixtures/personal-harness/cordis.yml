@@ -1,0 +1,60 @@
+# Test-only composition that records deterministic route and playbook context.
+- id: task-playbook-mock-llm
+  name: './task-playbook-mock-llm.ts'
+
+- id: task-router
+  name: '@deepseek-ai/dsh-task-router'
+  config:
+    fallbackTaskId: general
+    tasks:
+      - id: harness-engineering
+        title: Harness engineering
+        purpose: Build and evolve the personal Harness.
+        signals: [DSH, 插件]
+      - id: general
+        title: General execution
+        purpose: Handle other work.
+        signals: []
+
+- id: task-playbook
+  name: '@deepseek-ai/dsh-task-playbook'
+  config:
+    maxInjectedBytes: 2048
+    playbooks:
+      - taskId: harness-engineering
+        objective: Build observable Harness plugins through explicit extension points.
+        workflow:
+          - Inspect the owning package contracts.
+          - Implement the smallest sufficient plugin change.
+        completionChecks:
+          - Focused tests and the real composition pass.
+        cautions:
+          - Do not modify the Agent Loop without need.
+      - taskId: general
+        objective: Complete the requested outcome.
+        workflow:
+          - Identify the outcome.
+          - Verify the result.
+        completionChecks:
+          - The result is observable.
+        cautions: []
+
+- id: agent-spine
+  name: '@deepseek-ai/dsh-agent-spine-demo'
+  config:
+    agents:
+      - id: main
+        provider: task-playbook-mock
+        model: task-playbook-mock
+        cwd: !!js process.cwd()
+    persona: 'Test deterministic personal Harness context.'
+    workspaceContext: false
+
+- id: persistence
+  name: '@deepseek-ai/dsh-session-persistence-jsonl'
+  config:
+    root: './.sessions'
+    compression: 'none'
+
+- id: checkpoint-policy
+  name: '@deepseek-ai/dsh-session-checkpoint-policy'

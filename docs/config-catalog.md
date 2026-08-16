@@ -1277,6 +1277,35 @@ export interface ReconnectConfig {
 
 Source: [`packages/mcp/mcp-client/src/index.ts:98`](../packages/mcp/mcp-client/src/index.ts)
 
+<a id="deepseek-aidsh-memory-flow"></a>
+
+## `@deepseek-ai/dsh-memory-flow`
+
+Requires: `agents` · `storageDomain` · `taskRouter` · `tools`
+
+```ts config-catalog
+/** Configuration controlling capture and model-context budgets. */
+export interface Config {
+  /** Maximum UTF-8 bytes in one memory content field. */
+  readonly maxEntryBytes: number
+  /** Maximum tags stored with one entry. */
+  readonly maxTagsPerEntry: number
+  /** Maximum UTF-8 bytes in one normalized tag. */
+  readonly maxTagBytes: number
+  /** Maximum records injected into one turn. */
+  readonly maxInjectedEntries: number
+  /** Maximum UTF-8 bytes in the complete recalled-memory context message. */
+  readonly maxInjectedBytes: number
+  /** Kinds recalled even when no configured tag occurs in the user message. */
+  readonly alwaysRecallKinds: readonly MemoryKind[]
+}
+
+/** Category of one durable memory entry. */
+export type MemoryKind = typeof MEMORY_KINDS[number]
+```
+
+Source: [`packages/context/memory-flow/src/index.ts:29`](../packages/context/memory-flow/src/index.ts)
+
 <a id="deepseek-aidsh-message-feedback"></a>
 
 ## `@deepseek-ai/dsh-message-feedback`
@@ -2244,6 +2273,68 @@ export interface Config {
 
 Source: [`packages/core/system-prompt/src/index.ts:186`](../packages/core/system-prompt/src/index.ts)
 
+<a id="deepseek-aidsh-task-playbook"></a>
+
+## `@deepseek-ai/dsh-task-playbook`
+
+Requires: `agents` · `taskRouter`
+
+```ts config-catalog
+/** Task Playbook configuration. */
+export interface Config {
+  /** Maximum UTF-8 bytes in any complete rendered playbook message. */
+  readonly maxInjectedBytes: number
+  /** Exactly one playbook for every configured Task Router definition. */
+  readonly playbooks: readonly TaskPlaybookDefinition[]
+}
+
+/** Execution guidance for one configured task family. */
+export interface TaskPlaybookDefinition {
+  /** Task Router id that selects this playbook. */
+  readonly taskId: string
+  /** Outcome the model should optimize within the current user request. */
+  readonly objective: string
+  /** Ordered operating steps; the model may skip inapplicable steps. */
+  readonly workflow: readonly string[]
+  /** Observable conditions used before reporting completion. */
+  readonly completionChecks: readonly string[]
+  /** Task-specific failure modes to avoid. */
+  readonly cautions: readonly string[]
+}
+```
+
+Source: [`packages/context/task-playbook/src/index.ts:39`](../packages/context/task-playbook/src/index.ts)
+
+<a id="deepseek-aidsh-task-router"></a>
+
+## `@deepseek-ai/dsh-task-router`
+
+Requires: `agents`
+
+```ts config-catalog
+/** Task-router configuration. */
+export interface Config {
+  /** Route used when no configured signal occurs in the latest human message. */
+  readonly fallbackTaskId: string
+  /** Ordered, non-empty route table. */
+  readonly tasks: readonly TaskDefinition[]
+}
+
+/** One configured task family. Configuration order is the tie-break order. */
+export interface TaskDefinition {
+  /** Stable lowercase id written to durable route sources and memory scopes. */
+  readonly id: string
+  /** Short model-visible label. */
+  readonly title: string
+  /** Model-visible purpose and boundary of the task family. */
+  readonly purpose: string
+  /** Case-insensitive substrings that vote for this task family. */
+  readonly signals: readonly string[]
+}
+```
+
+Source: [`packages/context/task-router/src/index.ts:31`](../packages/context/task-router/src/index.ts)
+
 <a id="deepseek-aidsh-terminal-bash"></a>
 
 ## `@deepseek-ai/dsh-terminal-bash`
@@ -3137,6 +3228,7 @@ Imported as libraries by other packages; a `cordis.yml` cannot load them.
 - `@deepseek-ai/dsh-loader-smoke` ([`packages/test-support/loader-smoke/src/index.ts`](../packages/test-support/loader-smoke/src/index.ts))
 - `@deepseek-ai/dsh-native-command` ([`packages/util/native-command/src/index.ts`](../packages/util/native-command/src/index.ts))
 - `@deepseek-ai/dsh-output-retention` ([`packages/util/output-retention/src/index.ts`](../packages/util/output-retention/src/index.ts))
+- `@deepseek-ai/dsh-personal-harness` ([`packages/bundle/personal-harness/src/index.ts`](../packages/bundle/personal-harness/src/index.ts))
 - `@deepseek-ai/dsh-sandbox-windows-acl` ([`packages/sandbox/sandbox-windows-acl/src/index.ts`](../packages/sandbox/sandbox-windows-acl/src/index.ts))
 - `@deepseek-ai/dsh-scope` ([`packages/core/scope/src/index.ts`](../packages/core/scope/src/index.ts))
 - `@deepseek-ai/dsh-sdk-client` ([`packages/sdk/client/src/index.ts`](../packages/sdk/client/src/index.ts))
